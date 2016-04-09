@@ -6,9 +6,15 @@
 
   $user_id = (int) $_SESSION["user_id"];
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
+
   //ユーザーidからアカウント名を取得(DBのユーザー名前)
   $accout_name = account\Account::getNameById((int) $user_id, $mysqli);
   
+  //ページャー処理
+  $page = filter_input(INPUT_GET, 'page') ? (string) filter_input(INPUT_GET, 'page') : 1;
+  $pager_array = getPage((int) $page, $mysqli);
+  $max_page = getMaxPage($mysqli);
+
   $name = (string) filter_input(INPUT_POST, 'name');  
   $msg = (string) filter_input(INPUT_POST, 'body');
   $checked_name = htmlspecialchars($name);
@@ -38,6 +44,47 @@
       return 'failed';
     }
     return '';
+  }
+
+  /**
+   * 該当するページの投稿を最大10個取ってくる
+   * @param type $page
+   * @param type $mysqli
+   * @return type
+   */
+  function getPage($page, $mysqli) {
+    $limit = 10;
+    $offset = ($page - 1) * $limit;
+
+    $sql = "SELECT * FROM post LIMIT " . $offset. ", ". $limit;
+    $result = $mysqli->query($sql);
+
+    $limited_array = array();
+    while ($row = $result->fetch_assoc()) {
+      //セッションにユーザ名を保存(ログイン済みかのフラグ)
+      $limited_array[] = $row;
+    }
+    $result->close();
+
+    return $limited_array;
+  }
+
+  /**
+   * 投稿されている最大ページ数を取ってくる
+   * @param type $mysqli
+   * @return type
+   */
+  function getMaxPage($mysqli) {
+    $limit = 10;
+
+    $sql = "SELECT id FROM post";
+    $result = $mysqli->query($sql);
+    $num_rows = $result->num_rows;
+    //小数点切り上げ
+    $max_page = ceil($num_rows / $limit);
+    $result->close();
+
+    return (int) $max_page;
   }
 
   /**
@@ -113,15 +160,32 @@
   </head>
   <body>
     <a href="../logout.php">ログアウト</a>
-
     <h1>メッセージ投稿</h1>
     <form id="msgForm" method="POST" action="datawrite.php">
-      名前：<input name="name" value="<?= $accout_name ?>" type="text" />
+      名前：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
       <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea>
       <input  type="submit" value="投稿" />
     </form>
     <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg) : '' ?>
     <?= $status === 'failed' ? 'メッセージの保存が失敗しました。' : '' ?>
+
+    <h1>投稿済み一覧</h1>
+    <table border=1>
+      <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th></tr>
+      <? foreach ($pager_array as $post) { ?>
+        <tr><td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= $post['body'] ?></td><td><?= $post['created_at'] ?></td></tr>
+      <? } ?>
+    </table>
+
+    <ul>
+    <? if ($page > 1) { ?>
+      <li><a href="datawrite.php?page=<?= $page - 1 ?>">前のページへ</a></li>
+    <? } ?>
+    <? if ($page < $max_page) { ?>
+      <li><a href="datawrite.php?page=<?= $page + 1 ?>">次のページへ</a></li>
+    <? } ?>
+    </ul>
+
   </body>
 
 </html>
