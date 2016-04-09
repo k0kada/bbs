@@ -1,20 +1,36 @@
 <?php
+
+  require_once 'model/Account.class.php';
+
   session_start();
 
+  $user_id = (int) $_SESSION["user_id"];
+  $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
+  //ユーザーidからアカウント名を取得(DBのユーザー名前)
+  $accout_name = account\Account::getNameById((int) $user_id, $mysqli);
+  
+  $name = (string) filter_input(INPUT_POST, 'name');  
   $msg = (string) filter_input(INPUT_POST, 'body');
+  $checked_name = htmlspecialchars($name);
   $checked_msg = htmlspecialchars($msg);
 
-  $status = insertMsg($checked_msg);
+  $status = insertFormValue($checked_name, $checked_msg);
 
-  function insertMsg($checked_msg)
+  /**
+   * フォームの入力をDBに保存する
+   * @param type $checked_name
+   * @param type $checked_msg
+   * @return string
+   */
+  function insertFormValue($checked_name, $checked_msg)
   {
-    if ($checked_msg !== '') {
+    if ($checked_name !== '' && $checked_msg !== '') {
       $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
 
       $now = date("Y-m-d H:i:s");
 
-      $stmt = $mysqli->prepare("INSERT INTO post (user_id, body, created_at) VALUES (?, ?, ?)");
-      $stmt->bind_param('iss', $_SESSION["user_id"], $checked_msg, $now);
+      $stmt = $mysqli->prepare("INSERT INTO post (user_id, name, body, created_at) VALUES (?, ?, ?, ?)");
+      $stmt->bind_param('isss', $_SESSION["user_id"], $checked_name,  $checked_msg, $now);
 
       if ($stmt->execute()) {
         return 'success';
@@ -23,7 +39,6 @@
     }
     return '';
   }
-
 
   /**
    * Step1::ファイルほぞん
@@ -70,13 +85,21 @@
 
     <script type="text/javascript">
     $(function(){
+
+      //バリデーション
       $("#msgForm").validate({
         rules : {
+          name: {
+            required: true
+          },
           body: {
             required: true
           }
         },
         messages: {
+          name: {
+            required: "何か入力してください"
+          },
           body: {
             required: "何か入力してください"
           }
@@ -93,10 +116,11 @@
 
     <h1>メッセージ投稿</h1>
     <form id="msgForm" method="POST" action="datawrite.php">
-      <textarea name="body" rows="4" cols="40" placeholder="感想を入力してください"></textarea>
+      名前：<input name="name" value="<?= $accout_name ?>" type="text" />
+      <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea>
       <input  type="submit" value="投稿" />
     </form>
-    <?= $status === 'success' ? nl2br($checked_msg) : '' ?>
+    <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg) : '' ?>
     <?= $status === 'failed' ? 'メッセージの保存が失敗しました。' : '' ?>
   </body>
 
