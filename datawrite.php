@@ -93,10 +93,10 @@
 
     <h1>メッセージ投稿</h1>
     <form id="msgForm" method="POST" action="datawrite.php">
-      メッセージ：<input name="body" type="text" />
+      <textarea name="body" rows="4" cols="40" placeholder="感想を入力してください"></textarea>
       <input  type="submit" value="投稿" />
     </form>
-    <?= $status === 'success' ? $checked_msg : '' ?>
+    <?= $status === 'success' ? nl2br($checked_msg) : '' ?>
     <?= $status === 'failed' ? 'メッセージの保存が失敗しました。' : '' ?>
   </body>
 
