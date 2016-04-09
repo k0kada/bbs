@@ -63,5 +63,8 @@
       パスワード：<input type="password" name="password" />
       <input type="submit" value="ログイン" />
     </form>
+
+    <a href="../newAccount.php">新規登録</a>
+
   </body>
 </html>
