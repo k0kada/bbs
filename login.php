@@ -13,7 +13,7 @@
   $password = (string) filter_input(INPUT_POST, 'password');
 
   //セッションにセットされていたらログイン済み
-  if (isset($_SESSION["username"])) {
+  if (isset($_SESSION["user_id"])) {
     $status = "logged_in";
   } elseif ($username !== '' && $password !== '') {
     $sql = "SELECT * FROM account WHERE name = '" . $username . "'";
@@ -30,8 +30,9 @@
         //入力されたパスと、ハッシュ済みパスが一致したら
         if (password_verify($password, $db_hashed_pwd)) {
           $status = "success";
+
           //セッションにユーザ名を保存(ログイン済みかのフラグ)
-          $_SESSION["username"] = $username;
+          $_SESSION["user_id"] = $row['id'];
           break;
         }
       }
@@ -43,7 +44,7 @@
 
   //ログインが成功していたらリダイレクト
   if ($status === 'logged_in' || $status === 'success') {
-	header('Location: ./datawrite.php/');
+	header('Location: ../datawrite.php');
     exit();
   }
 

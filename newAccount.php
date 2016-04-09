@@ -14,7 +14,7 @@
     if ($status === 'ok') {
     
       //現時刻
-      $now =date("Y-m-d H:i:s");
+      $now = date("Y-m-d H:i:s");
       //パスワードはハッシュ化する
       $hashed_pwd = password_hash($password, PASSWORD_DEFAULT);
       //インサート文
@@ -22,7 +22,7 @@
       $stmt_ins->bind_param('sss', $username, $hashed_pwd, $now);
     
       if ($stmt_ins->execute()) {
-	    header('Location: ./login.php');
+	    header('Location: ../login.php');
         exit();
       } else {
         $status = "failed";
