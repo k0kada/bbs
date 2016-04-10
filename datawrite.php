@@ -163,10 +163,11 @@
   <body>
     <a href="../logout.php">ログアウト</a>
     <h1>メッセージ投稿</h1>
-    <form id="msgForm" method="POST" action="postRegister.php">
+    <form id="msgForm" method="POST" enctype="multipart/form-data" action="postRegister.php">
       名前：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
-      <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea>
+      <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea><br>
       <input type="hidden" name="ticket" value="<?=$ticket?>">
+      <input type="file" name="image" accept="image/jpeg, image/gif, image/png">
       <input  type="submit" value="投稿" />
     </form>
     <div id="error_msg">
@@ -187,11 +188,12 @@
     <? } ?>
     </ul>
     <table border=1>
-        <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th></tr>
+        <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th></tr>
       <? foreach ($pager_array as $post) { ?>
         <tr>
             <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
             <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
+            <td style="background-image:url('drawImage.php?post_id=<?= $post['id'] ?>'); background-size:cover;"></td>
         </tr>
       <? } ?>
     </table>
