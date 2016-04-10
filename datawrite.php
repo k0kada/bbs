@@ -4,6 +4,10 @@
 
   session_start();
 
+  //ワンタイムチケットを生成する。
+  $ticket = md5(uniqid(rand(), true));
+  $_SESSION['ticket'] = $ticket;
+  
   $user_id = (int) $_SESSION["user_id"];
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
 
@@ -21,70 +25,10 @@
 
   $name = (string) filter_input(INPUT_POST, 'name');  
   $msg = (string) filter_input(INPUT_POST, 'body');
+  $status = (string) filter_input(INPUT_POST, 'status');
+
   $checked_name = htmlspecialchars($name);
   $checked_msg = htmlspecialchars($msg);
-
-  $status = insertFormValue($checked_name, $checked_msg);
-
-  /**
-   * フォームの入力をDBに保存する
-   * @param type $checked_name
-   * @param type $checked_msg
-   * @return string
-   */
-  function insertFormValue($checked_name, $checked_msg)
-  {
-    //入力チェック
-    $insert_flag = checkInputFlag($checked_name, $checked_msg);
-    if ($insert_flag) {
-      $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
-
-      $now = date("Y-m-d H:i:s");
-
-      $stmt = $mysqli->prepare("INSERT INTO post (user_id, name, body, created_at) VALUES (?, ?, ?, ?)");
-      $stmt->bind_param('isss', $_SESSION["user_id"], $checked_name,  $checked_msg, $now);
-
-      if ($stmt->execute()) {
-        return 'success';
-      }
-      return 'failed';
-    }
-    return '';
-  }
-
-  /**
-   * 入力チェック
-   * @param type $checked_name
-   * @param type $checked_msg
-   * @return type
-   */
-  function checkInputFlag($checked_name, $checked_msg)
-  {
-    $status = 0;
-    //名前入力チェック(判定falseなら0、trueなら+1)
-    switch ($checked_name) {
-      case '':
-        break;
-      case strlen($checked_name) > 30:
-        break;
-      default :
-        $status += 1;
-        break;
-    }
-
-    //msg入力チェック(判定falseなら0、trueなら+1)
-    switch ($checked_msg) {
-      case '':
-          break;
-      case strlen($checked_name) > 600:
-          break;
-      default :
-        $status += 1;
-        break;
-    }
-
-    return $status == 2 ? true : false;
-  }
 
   /**
    * 該当するページの投稿を最大10個取ってくる
@@ -214,13 +158,15 @@
   <body>
     <a href="../logout.php">ログアウト</a>
     <h1>メッセージ投稿</h1>
-    <form id="msgForm" method="POST" action="datawrite.php">
+    <form id="msgForm" method="POST" action="postRegister.php">
       名前：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
       <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea>
+      <input type="hidden" name="ticket" value="<?=$ticket?>">
       <input  type="submit" value="投稿" />
     </form>
-    <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg) : '' ?>
-    <?= $status === 'failed' ? 'メッセージの保存が失敗しました。' : '' ?>
+    <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg). '<br>' : '' ?>
+    <?= $status === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
+    <?= $status === 'duplicate' ? '<h2 style="color:red">2重投稿です。</h2>' : '' ?>
 
     <h1>投稿済み一覧</h1>
     <ul>
