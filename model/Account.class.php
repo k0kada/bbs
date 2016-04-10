@@ -1,5 +1,5 @@
 <?php
-namespace account; 
+namespace model;
 
 class Account {
 

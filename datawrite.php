@@ -8,7 +8,7 @@
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
 
   //ユーザーidからアカウント名を取得(DBのユーザー名前)
-  $accout_name = account\Account::getNameById((int) $user_id, $mysqli);
+  $accout_name = model\Account::getNameById((int) $user_id, $mysqli);
   
   //ページャー処理
   $page = filter_input(INPUT_GET, 'page') ? (string) filter_input(INPUT_GET, 'page') : 1;
@@ -30,7 +30,9 @@
    */
   function insertFormValue($checked_name, $checked_msg)
   {
-    if ($checked_name !== '' && $checked_msg !== '') {
+    //入力チェック
+    $insert_flag = checkInputFlag($checked_name, $checked_msg);
+    if ($insert_flag) {
       $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
 
       $now = date("Y-m-d H:i:s");
@@ -47,12 +49,47 @@
   }
 
   /**
+   * 入力チェック
+   * @param type $checked_name
+   * @param type $checked_msg
+   * @return type
+   */
+  function checkInputFlag($checked_name, $checked_msg)
+  {
+    $status = 0;
+    //名前入力チェック(判定falseなら0、trueなら+1)
+    switch ($checked_name) {
+      case '':
+        break;
+      case strlen($checked_name) > 30:
+        break;
+      default :
+        $status += 1;
+        break;
+    }
+
+    //msg入力チェック(判定falseなら0、trueなら+1)
+    switch ($checked_msg) {
+      case '':
+          break;
+      case strlen($checked_name) > 600:
+          break;
+      default :
+        $status += 1;
+        break;
+    }
+
+    return $status == 2 ? true : false;
+  }
+
+  /**
    * 該当するページの投稿を最大10個取ってくる
    * @param type $page
    * @param type $mysqli
    * @return type
    */
-  function getPage($page, $mysqli) {
+  function getPage($page, $mysqli)
+  {
     $limit = 10;
     $offset = ($page - 1) * $limit;
 
@@ -74,7 +111,8 @@
    * @param type $mysqli
    * @return type
    */
-  function getMaxPage($mysqli) {
+  function getMaxPage($mysqli)
+  {
     $limit = 10;
 
     $sql = "SELECT id FROM post";
@@ -137,23 +175,34 @@
       $("#msgForm").validate({
         rules : {
           name: {
-            required: true
+            required: true,
+            maxByte: 30
           },
           body: {
-            required: true
+            required: true,
+            maxByte: 600
           }
         },
         messages: {
           name: {
-            required: "何か入力してください"
+            required: "何か入力してください",
+            maxByte: "30byte以下で入力してください"
           },
           body: {
-            required: "何か入力してください"
+            required: "何か入力してください",
+            maxByte: "600byte以下で入力してください"
           }
         },
         errorClass: "msgError",
         errorElement: "div"
       });
+
+      //バイト数判定
+      jQuery.validator.addMethod("maxByte", function(value, element, param) {
+        var txt_byte = encodeURIComponent(value).replace(/%../g,"x").length;
+        return txt_byte <= param;
+      });
+
     });
     </script>
 
