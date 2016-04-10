@@ -187,9 +187,12 @@
     <? } ?>
     </ul>
     <table border=1>
-      <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th></tr>
+        <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th></tr>
       <? foreach ($pager_array as $post) { ?>
-        <tr><td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= $post['body'] ?></td><td><?= $post['created_at'] ?></td></tr>
+        <tr>
+            <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
+            <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
+        </tr>
       <? } ?>
     </table>
 
