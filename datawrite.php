@@ -4,11 +4,16 @@
 
   session_start();
 
+  if (is_null($_SESSION["user_id"])) {
+    header('Location: ./login.php/');
+    exit();
+  }
+  $user_id = (int) $_SESSION["user_id"];
+
   //ワンタイムチケットを生成する。
   $ticket = md5(uniqid(rand(), true));
   $_SESSION['ticket'] = $ticket;
   
-  $user_id = (int) $_SESSION["user_id"];
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
 
   //ユーザーidからアカウント名を取得(DBのユーザー名前)
@@ -164,9 +169,11 @@
       <input type="hidden" name="ticket" value="<?=$ticket?>">
       <input  type="submit" value="投稿" />
     </form>
-    <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg). '<br>' : '' ?>
-    <?= $status === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
-    <?= $status === 'duplicate' ? '<h2 style="color:red">2重投稿です。</h2>' : '' ?>
+    <div id="error_msg">
+      <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg). '<br>' : '' ?>
+      <?= $status === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
+      <?= $status === 'duplicate' ? '<h2 style="color:red">2重投稿です</h2>' : '' ?>
+    </div>
 
     <h1>投稿済み一覧</h1>
     <ul>
