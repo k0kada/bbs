@@ -12,7 +12,11 @@
   
   //ページャー処理
   $page = filter_input(INPUT_GET, 'page') ? (string) filter_input(INPUT_GET, 'page') : 1;
-  $pager_array = getPage((int) $page, $mysqli);
+
+  //昇順、降順判定
+  $order = in_array(filter_input(INPUT_GET, 'order'), array('ASC', 'DESC')) ? (string) filter_input(INPUT_GET, 'order') : 'DESC';
+
+  $pager_array = getPage((int) $page, $order, $mysqli);
   $max_page = getMaxPage($mysqli);
 
   $name = (string) filter_input(INPUT_POST, 'name');  
@@ -88,12 +92,12 @@
    * @param type $mysqli
    * @return type
    */
-  function getPage($page, $mysqli)
+  function getPage($page, $order, $mysqli)
   {
     $limit = 10;
     $offset = ($page - 1) * $limit;
 
-    $sql = "SELECT * FROM post LIMIT " . $offset. ", ". $limit;
+    $sql = "SELECT * FROM post ORDER BY id ". $order. " LIMIT " . $offset. ", ". $limit;
     $result = $mysqli->query($sql);
 
     $limited_array = array();
@@ -219,6 +223,16 @@
     <?= $status === 'failed' ? 'メッセージの保存が失敗しました。' : '' ?>
 
     <h1>投稿済み一覧</h1>
+    <ul>
+    <? if ($order === 'ASC') { ?>
+      <li>昇順</li>
+      <li><a href="datawrite.php?order=DESC">降順</a></li>
+    <? } ?>
+    <? if ($order === 'DESC') { ?>
+      <li><a href="datawrite.php?order=ASC">昇順</a></li>
+      <li>降順</li>
+    <? } ?>
+    </ul>
     <table border=1>
       <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th></tr>
       <? foreach ($pager_array as $post) { ?>
@@ -228,10 +242,10 @@
 
     <ul>
     <? if ($page > 1) { ?>
-      <li><a href="datawrite.php?page=<?= $page - 1 ?>">前のページへ</a></li>
+      <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
     <? } ?>
     <? if ($page < $max_page) { ?>
-      <li><a href="datawrite.php?page=<?= $page + 1 ?>">次のページへ</a></li>
+      <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
     <? } ?>
     </ul>
 
