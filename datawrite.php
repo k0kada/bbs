@@ -162,6 +162,7 @@
   </head>
   <body>
     <a href="../logout.php">ログアウト</a>
+    <h3><a href="../search.php" >検索</a></h3>
     <h1>メッセージ投稿</h1>
     <form id="msgForm" method="POST" enctype="multipart/form-data" action="postRegister.php">
       名前：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
