@@ -189,12 +189,13 @@
     <? } ?>
     </ul>
     <table border=1>
-        <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th></tr>
+        <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th>></tr>
       <? foreach ($pager_array as $post) { ?>
         <tr>
             <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
             <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
             <td style="background-image:url('drawImage.php?post_id=<?= $post['id'] ?>'); background-size:cover;"></td>
+            <td><button><a href="postDelete.php?id=<?= $post['id'] ?>">削除</button></td>
         </tr>
       <? } ?>
     </table>
