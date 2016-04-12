@@ -1,8 +1,28 @@
 <?php
 
-  //セッション開始
+  require_once 'model/Api.class.php';
+  require_once 'vendor/abraham/twitteroauth/autoload.php';
+  use Abraham\TwitterOAuth\TwitterOAuth;
+
+    //セッション開始
   session_start();
-  
+
+  $tw_api_key = model\Api::getTwitterKey();
+
+  //TwitterOAuth をインスタンス化
+  $connection = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET']);
+
+  //コールバックURLをここでセット
+  $request_token = $connection->oauth('oauth/request_token', array('oauth_callback' => $tw_api_key['OAUTH_CALLBACK']));
+
+  //callback.phpで使うのでセッションに入れる
+  $_SESSION['oauth_token'] = $request_token['oauth_token'];
+  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
+
+  //Twitter.com 上の認証画面のURLを取得( この行についてはコメント欄も参照 )
+  $tw_url = $connection->url('oauth/authenticate', array('oauth_token' => $request_token['oauth_token']));
+
+
   //DBのオブジェクト作成
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
 
@@ -64,7 +84,7 @@
       パスワード：<input type="password" name="password" />
       <input type="submit" value="ログイン" />
     </form>
-
+    <a href="<?= $tw_url ?>">twitterでログイン</a><br>
     <a href="../newAccount.php">新規登録</a>
 
   </body>

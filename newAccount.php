@@ -1,7 +1,49 @@
 <?php
 
+  session_start();
+
+  require_once 'model/Api.class.php';
+  require_once 'vendor/abraham/twitteroauth/autoload.php';
+  use Abraham\TwitterOAuth\TwitterOAuth;
+
   //DBのオブジェクト作成
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
+
+  //セッションに入れておいたさっきの配列
+  $access_token = $_SESSION['access_token'];
+  $tw_api_key = model\Api::getTwitterKey();
+
+  //OAuthトークンとシークレットも使って TwitterOAuth をインスタンス化
+  $connection = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET'], $access_token['oauth_token'], $access_token['oauth_token_secret']);
+
+  //ユーザー情報をGET
+  $user = $connection->get("account/verify_credentials");
+
+  $tw_status = checkApiOverlap(htmlspecialchars($access_token['oauth_token']), $mysqli);
+
+  if ($tw_status === 'ok') {
+
+    //現時刻
+    $now = date("Y-m-d H:i:s");
+    //パスワードはハッシュ化する
+    $hashed_pwd = password_hash(htmlspecialchars($access_token['oauth_token']), PASSWORD_DEFAULT);
+    //インサート文
+    $stmt_ins = $mysqli->prepare("INSERT INTO account (name, password, api_token, created_at) VALUES (?, ?, ?, ?)");
+    $stmt_ins->bind_param('ssss', $user->name, $hashed_pwd, htmlspecialchars($access_token['oauth_token']), $now);
+
+    if ($stmt_ins->execute()) {
+      $insert_id = $stmt_ins->insert_id;
+
+      $_SESSION["user_id"] = $insert_id;
+  	$mysqli->close();
+
+   header('Location: /datawrite.php');
+      exit();
+    } else {
+      $status = "failed";
+    }
+  }
+
 
   $status = '';
 
@@ -20,7 +62,7 @@
       //インサート文
       $stmt_ins = $mysqli->prepare("INSERT INTO account (name, password, created_at) VALUES (?, ?, ?)");
       $stmt_ins->bind_param('sss', $username, $hashed_pwd, $now);
-    
+
       if ($stmt_ins->execute()) {
 	    header('Location: ../login.php');
         exit();
@@ -52,6 +94,30 @@
     }
   }
 
+  function checkApiOverlap($token, $mysqli)
+  {
+
+    $stmt_sel = $mysqli->prepare("SELECT * FROM account WHERE api_token = ?");
+    $stmt_sel->bind_param('s', $token);
+    $stmt_sel->execute();
+
+    $result = $stmt_sel->get_result();
+    $array = array();
+    while ($row = $result->fetch_assoc()) {
+      //セッションにユーザ名を保存(ログイン済みかのフラグ)
+      $array[] = $row;
+    }
+
+    $result->close(); // 結果セットを開放
+	$mysqli->close();
+
+    if (count($array) < 1) {
+      return 'ok';
+    } else {
+      $_SESSION["user_id"] = $array[0]['id'];
+      return 'overlap';
+    }
+  }
 ?>
 
 <!DOCTYPE html>
