@@ -8,18 +8,14 @@
     //セッション開始
   session_start();
 
-$fb_key = model\Api::getFacebookKey();
-$fb = new Facebook\Facebook($fb_key);
-
-$helper = $fb->getRedirectLoginHelper();
-$permissions = ['email']; // optional
-$url = 'http://ko-okada.net/callback.php';
-$loginUrl = $helper->getLoginUrl($url, $permissions);
-
-echo '<a href="' . $loginUrl . '">Log in with Facebook!</a>';
-
+  $fb_key = model\Api::getFacebookKey();
+  $fb = new Facebook\Facebook($fb_key);
   
-  
+  $helper = $fb->getRedirectLoginHelper();
+  $permissions = ['email']; // optional
+  $url = 'http://ko-okada.net/callback.php';
+  $loginUrl = $helper->getLoginUrl($url, $permissions);
+
   $tw_api_key = model\Api::getTwitterKey();
 
   //TwitterOAuth をインスタンス化
@@ -87,18 +83,31 @@ echo '<a href="' . $loginUrl . '">Log in with Facebook!</a>';
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ログイン</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/css/signin.css" rel="stylesheet">
+
   </head>
   <body>
-    <h1>ログイン</h1>
-    <?= $status === 'failed' ? 'ログインできません' : '' ?>
-    <form method="POST" action="login.php">
-      ユーザ名：<input type="text" name="username" />
-      パスワード：<input type="password" name="password" />
-      <input type="submit" value="ログイン" />
-    </form>
-    <a href="<?= $tw_url ?>">twitterでログイン</a><br>
-    <a href="../newAccount.php">新規登録</a>
+    <div class="container">
+      <form class="form-signin" method="POST" action="login.php">
+        <h2 class="form-signin-heading">ログイン</h2>
+        <?= $status === 'failed' ? 'ログインできません' : '' ?>
 
+        <label for="inputEmail" class="sr-only">ユーザー名</label>
+        <input class="form-control" type="text" name="username" />
+              <label for="inputEmail" class="sr-only">パスワード</label>
+        <input class="form-control" type="password" name="password" />
+          <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
+      </form>
+
+        <a href="<?= $loginUrl ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>
+        <a href="<?= $tw_url ?>"><button class="btn btn-info btn-block">twitterでログイン</button></a>
+        <a href="/newAccount.php"><button class="btn btn-danger btn-block">新規登録</button></a>
+
+    </div>
   </body>
 </html>
