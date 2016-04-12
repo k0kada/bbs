@@ -88,7 +88,7 @@
 
         <input class="form-control" type="text" name="username" placeholder="ユーザー名" />
         <input class="form-control" type="password" name="password" placeholder="パスワード" />
-          <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
+        <button class="btn btn-lg btn-success btn-block" type="submit">ログイン</button>
       </form>
 
         <a href="<?= $fb_url ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>

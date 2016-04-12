@@ -3,189 +3,90 @@
   session_start();
 
   require_once 'model/Api.class.php';
-  require_once 'vendor/abraham/twitteroauth/autoload.php';
+  require_once 'model/Account.class.php';
   require_once 'vendor/autoload.php';
 
   use Abraham\TwitterOAuth\TwitterOAuth;
-
   //DBのオブジェクト作成
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
+
+  //fbのアカウント新規登録(facebookのuserIdをapi_keyに入れる)
+  //FIXME::userIdをパスワードにする以外の方法を考える
+  if (isset($_SESSION['facebook_access_token'])) {
+    $fb_key = model\Api::getFacebookKey();
+    $fb = new Facebook\Facebook($fb_key);
+    $fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
+    //ユーザーの情報を取得
+    $response = $fb->get('/me');
+    $fb_user = $response->getGraphUser();
+    //fbのユーザーidから重複ユーザーがないか検索
+    $fb_status = model\Account::checkOverlapByApiKey($fb_user->getId(), $mysqli);
+    if ($fb_status === 'ok') {
+      model\Account::createAccountbyNameApiKey($fb_user->getName(), $fb_user->getId(), $mysqli);
+    } elseif ($fb_status === 'overlap') {
+      $mysqli->close();
+      header('Location: /datawrite.php');
+      exit();
+    }
+  }
+
+  //twitterのアカウント新規登録(twitterのアクセストークンを入れる)
+  if (isset($_SESSION['access_token'])) {
+    //セッションに入れておいたさっきの配列
+    $access_token = $_SESSION['access_token'];
+    $tw_api_key = model\Api::getTwitterKey(); 
+    $tw = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET'], $access_token['oauth_token'], $access_token['oauth_token_secret']);
+    //ユーザー情報をGET
+    $tw_user = $tw->get("account/verify_credentials");
+    $tw_status = model\Account::checkOverlapByApiKey($access_token['oauth_token'], $mysqli);
   
-  $fb_key = model\Api::getFacebookKey();
-
-$fb = new Facebook\Facebook($fb_key);
-
-// Sets the default fallback access token so we don't have to pass it to each request
-$fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
-
-try {
-  $response = $fb->get('/me');
-  $userNode = $response->getGraphUser();
-} catch(Facebook\Exceptions\FacebookResponseException $e) {
-  // When Graph returns an error
-  echo 'Graph returned an error: ' . $e->getMessage();
-  exit;
-} catch(Facebook\Exceptions\FacebookSDKException $e) {
-  // When validation fails or other local issues
-  echo 'Facebook SDK returned an error: ' . $e->getMessage();
-  exit;
-}
-
-$fb_status =checkApiOverlap($_SESSION['facebook_access_token'], $mysqli);
-
-  if ($fb_status === 'ok') {
-
-    //現時刻
-    $now = date("Y-m-d H:i:s");
-    //パスワードはハッシュ化する
-    $hashed_pwd = password_hash(htmlspecialchars($_SESSION['facebook_access_token']), PASSWORD_DEFAULT);
-
-    //インサート文
-    $stmt_ins = $mysqli->prepare("INSERT INTO account (name, password, api_token, created_at) VALUES (?, ?, ?, ?)");
-    $stmt_ins->bind_param('ssss', $userNode->getName(), $hashed_pwd, htmlspecialchars($_SESSION['facebook_access_token']), $now);
-
-    if ($stmt_ins->execute()) {
-      $insert_id = $stmt_ins->insert_id;
-
-      $_SESSION["user_id"] = $insert_id;
-//  	$mysqli->close();
-
-   header('Location: /datawrite.php');
+    if ($tw_status === 'ok') {
+      model\Account::createAccountbyNameApiKey($tw_user->name, $access_token['oauth_token'], $mysqli);
+    } elseif ($tw_status === 'overlap') {
+      $mysqli->close();
+      header('Location: /datawrite.php');
       exit();
-    } else {
-      $status = "failed";
     }
   }
 
-
-  //セッションに入れておいたさっきの配列
-  $access_token = $_SESSION['access_token'];
-  $tw_api_key = model\Api::getTwitterKey();
-
-  //OAuthトークンとシークレットも使って TwitterOAuth をインスタンス化
-  $connection = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET'], $access_token['oauth_token'], $access_token['oauth_token_secret']);
-
-  //ユーザー情報をGET
-  $user = $connection->get("account/verify_credentials");
-
-  $tw_status = checkApiOverlap(htmlspecialchars($access_token['oauth_token']), $mysqli);
-
-  if ($tw_status === 'ok') {
-
-    //現時刻
-    $now = date("Y-m-d H:i:s");
-    //パスワードはハッシュ化する
-    $hashed_pwd = password_hash(htmlspecialchars($access_token['oauth_token']), PASSWORD_DEFAULT);
-    //インサート文
-    $stmt_ins = $mysqli->prepare("INSERT INTO account (name, password, api_token, created_at) VALUES (?, ?, ?, ?)");
-    $stmt_ins->bind_param('ssss', $user->name, $hashed_pwd, htmlspecialchars($access_token['oauth_token']), $now);
-
-    if ($stmt_ins->execute()) {
-      $insert_id = $stmt_ins->insert_id;
-
-      $_SESSION["user_id"] = $insert_id;
-  	$mysqli->close();
-
-   header('Location: /datawrite.php');
-      exit();
-    } else {
-      $status = "failed";
-    }
-  }
-
-
+  //通常の新規登録
   $status = '';
-
   $username = (string) filter_input(INPUT_POST, 'username');
   $password = (string) filter_input(INPUT_POST, 'password');
 
   if ($username !== '' && $password !== '') {
-    $status = checkOverlap($username, $mysqli);
-
+    $status = model\Account::checkOverlapByName($username, $mysqli);
     if ($status === 'ok') {
-    
-      //現時刻
-      $now = date("Y-m-d H:i:s");
-      //パスワードはハッシュ化する
-      $hashed_pwd = password_hash($password, PASSWORD_DEFAULT);
-      //インサート文
-      $stmt_ins = $mysqli->prepare("INSERT INTO account (name, password, created_at) VALUES (?, ?, ?)");
-      $stmt_ins->bind_param('sss', $username, $hashed_pwd, $now);
-
-      if ($stmt_ins->execute()) {
-	    header('Location: ../login.php');
-        exit();
-      } else {
-        $status = "failed";
-      }
+      model\Account::createAccountByNamePass($username, $password, $mysqli);
     }
   }
 
-  /**
-   * すでに同じユーザー名が登録されているか確認
-   * @param type $username
-   * @param type $mysqli
-   * @return string
-   */
-  function checkOverlap($username, $mysqli)
-  {
-    $stmt_sel = $mysqli->prepare("SELECT * FROM account WHERE name = ?");
-    $stmt_sel->bind_param('s', $username);
-    $stmt_sel->execute();
-
-    $stmt_sel->store_result();
-    
-    
-    if ($stmt_sel->num_rows < 1) {
-      return 'ok';
-    } else {
-      return 'overlap';
-    }
-  }
-
-  function checkApiOverlap($token, $mysqli)
-  {
-
-    $stmt_sel = $mysqli->prepare("SELECT * FROM account WHERE api_token = ?");
-    $stmt_sel->bind_param('s', $token);
-    $stmt_sel->execute();
-
-    $result = $stmt_sel->get_result();
-    $array = array();
-    while ($row = $result->fetch_assoc()) {
-      //セッションにユーザ名を保存(ログイン済みかのフラグ)
-      $array[] = $row;
-    }
-
-    $result->close(); // 結果セットを開放
-//	$mysqli->close();
-
-    if (count($array) < 1) {
-      return 'ok';
-    } else {
-      $_SESSION["user_id"] = $array[0]['id'];
-      return 'overlap';
-    }
-  }
 ?>
 
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>新規登録</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/css/signin.css" rel="stylesheet">
   </head>
   <body>
-    <h1>新規登録</h1>
-    <?= $status === 'overlap' ? 'ユーザー名が重複しています<br>' : '' ?>
-    <?= $status === 'failed' ? '登録に失敗しました<br>' : '' ?>
-    <form method="POST" action="newAccount.php">
-      ユーザ名：<input type="text" name="username" />
-      パスワード：<input type="password" name="password" />
-      <input type="submit" value="作成" />
-    </form>
+    <div class="container">
+      <a href="/login.php">ログイン</a>
 
-    <a href="../login.php">ログイン</a>
+      <form class="form-signin" method="POST" action="newAccount.php">
+        <h2 class="form-signin-heading">新規登録</h2>
+        <?= $status === 'overlap' ? 'ユーザー名が重複しています<br>' : '' ?>
+        <?= $status === 'failed' ? '登録に失敗しました<br>' : '' ?>
 
+        <input class="form-control" type="text" name="username" placeholder="ユーザー名" />
+        <input class="form-control" type="password" name="password" placeholder="パスワード" />
+        <button class="btn btn-lg btn-success btn-block" type="submit">新規登録</button>
+      </form>  
+    </div>
   </body>
 </html>
