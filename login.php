@@ -2,11 +2,24 @@
 
   require_once 'model/Api.class.php';
   require_once 'vendor/abraham/twitteroauth/autoload.php';
+  require_once 'vendor/autoload.php';
   use Abraham\TwitterOAuth\TwitterOAuth;
 
     //セッション開始
   session_start();
 
+$fb_key = model\Api::getFacebookKey();
+$fb = new Facebook\Facebook($fb_key);
+
+$helper = $fb->getRedirectLoginHelper();
+$permissions = ['email']; // optional
+$url = 'http://ko-okada.net/callback.php';
+$loginUrl = $helper->getLoginUrl($url, $permissions);
+
+echo '<a href="' . $loginUrl . '">Log in with Facebook!</a>';
+
+  
+  
   $tw_api_key = model\Api::getTwitterKey();
 
   //TwitterOAuth をインスタンス化

@@ -5,8 +5,38 @@ session_start();
 
   require_once 'model/Api.class.php';
 require_once 'vendor/abraham/twitteroauth/autoload.php';
+require_once 'vendor/autoload.php';
+
 
 use Abraham\TwitterOAuth\TwitterOAuth;
+
+$fb_key = model\Api::getFacebookKey();
+$fb = new Facebook\Facebook($fb_key);
+
+$helper = $fb->getRedirectLoginHelper();
+try {
+  $accessToken = $helper->getAccessToken();
+} catch(Facebook\Exceptions\FacebookResponseException $e) {
+  // Graph api がエラーを返した場合
+  echo 'Graph returned an error: ' . $e->getMessage();
+  exit;
+} catch(Facebook\Exceptions\FacebookSDKException $e) {
+  // 認証エラーか、ローカルエラーの場合
+  echo 'Facebook SDK returned an error: ' . $e->getMessage();
+  exit;
+}
+
+if (isset($accessToken)) {
+  // Logged in!
+  $_SESSION['facebook_access_token'] = (string) $accessToken;
+
+  // これで、いつでもアクセストークンを
+  // $_SESSION['facebook_access_token']から取得できる。
+  header('location: /newAccount.php');
+  exit();
+}
+
+
 
 //login.phpでセットしたセッション
 $request_token = [];  // [] は array() の短縮記法。詳しくは以下の「追々記」参照

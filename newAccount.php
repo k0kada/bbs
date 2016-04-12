@@ -4,10 +4,61 @@
 
   require_once 'model/Api.class.php';
   require_once 'vendor/abraham/twitteroauth/autoload.php';
+  require_once 'vendor/autoload.php';
+
   use Abraham\TwitterOAuth\TwitterOAuth;
 
   //DBのオブジェクト作成
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
+  
+  $fb_key = model\Api::getFacebookKey();
+
+$fb = new Facebook\Facebook($fb_key);
+
+// Sets the default fallback access token so we don't have to pass it to each request
+$fb->setDefaultAccessToken($_SESSION['facebook_access_token']);
+
+try {
+  $response = $fb->get('/me');
+  $userNode = $response->getGraphUser();
+} catch(Facebook\Exceptions\FacebookResponseException $e) {
+  // When Graph returns an error
+  echo 'Graph returned an error: ' . $e->getMessage();
+  exit;
+} catch(Facebook\Exceptions\FacebookSDKException $e) {
+  // When validation fails or other local issues
+  echo 'Facebook SDK returned an error: ' . $e->getMessage();
+  exit;
+}
+
+$fb_status =checkApiOverlap($_SESSION['facebook_access_token'], $mysqli);
+
+  if ($fb_status === 'ok') {
+
+    //現時刻
+    $now = date("Y-m-d H:i:s");
+    //パスワードはハッシュ化する
+    $hashed_pwd = password_hash(htmlspecialchars($_SESSION['facebook_access_token']), PASSWORD_DEFAULT);
+
+    //インサート文
+    $stmt_ins = $mysqli->prepare("INSERT INTO account (name, password, api_token, created_at) VALUES (?, ?, ?, ?)");
+    $stmt_ins->bind_param('ssss', $userNode->getName(), $hashed_pwd, htmlspecialchars($_SESSION['facebook_access_token']), $now);
+
+    if ($stmt_ins->execute()) {
+      $insert_id = $stmt_ins->insert_id;
+
+      $_SESSION["user_id"] = $insert_id;
+//  	$mysqli->close();
+
+   header('Location: /datawrite.php');
+      exit();
+    } else {
+      $status = "failed";
+    }
+  }
+
+
+
 
   //セッションに入れておいたさっきの配列
   $access_token = $_SESSION['access_token'];
@@ -109,7 +160,7 @@
     }
 
     $result->close(); // 結果セットを開放
-	$mysqli->close();
+//	$mysqli->close();
 
     if (count($array) < 1) {
       return 'ok';
