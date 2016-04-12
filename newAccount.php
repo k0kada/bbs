@@ -58,8 +58,6 @@ $fb_status =checkApiOverlap($_SESSION['facebook_access_token'], $mysqli);
   }
 
 
-
-
   //セッションに入れておいたさっきの配列
   $access_token = $_SESSION['access_token'];
   $tw_api_key = model\Api::getTwitterKey();

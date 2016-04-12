@@ -1,41 +1,26 @@
 <?php
 
   require_once 'model/Api.class.php';
-  require_once 'vendor/abraham/twitteroauth/autoload.php';
+  require_once 'model/Account.class.php';
   require_once 'vendor/autoload.php';
   use Abraham\TwitterOAuth\TwitterOAuth;
 
     //セッション開始
   session_start();
 
-  $fb_key = model\Api::getFacebookKey();
-  $fb = new Facebook\Facebook($fb_key);
-  
-  $helper = $fb->getRedirectLoginHelper();
-  $permissions = ['email']; // optional
-  $url = 'http://ko-okada.net/callback.php';
-  $loginUrl = $helper->getLoginUrl($url, $permissions);
+  //facebook
+  $fb_api_key = model\Api::getFacebookKey();
+  $fb = new Facebook\Facebook($fb_api_key);
+  $fb_url = model\Account::getFacebookUrl($fb);
 
+  //twitter
   $tw_api_key = model\Api::getTwitterKey();
-
-  //TwitterOAuth をインスタンス化
-  $connection = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET']);
-
-  //コールバックURLをここでセット
-  $request_token = $connection->oauth('oauth/request_token', array('oauth_callback' => $tw_api_key['OAUTH_CALLBACK']));
-
-  //callback.phpで使うのでセッションに入れる
-  $_SESSION['oauth_token'] = $request_token['oauth_token'];
-  $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-
-  //Twitter.com 上の認証画面のURLを取得( この行についてはコメント欄も参照 )
-  $tw_url = $connection->url('oauth/authenticate', array('oauth_token' => $request_token['oauth_token']));
-
+  $tw = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET']);
+  $tw_url = model\Account::getTwitterUrl($tw, $tw_api_key);
 
   //DBのオブジェクト作成
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
-
-  //ログイン状態
+  //ログイン状態(logged_in,failed,success)
   $status = '';
 
   $username = (string) filter_input(INPUT_POST, 'username');
@@ -45,13 +30,16 @@
   if (isset($_SESSION["user_id"])) {
     $status = "logged_in";
   } elseif ($username !== '' && $password !== '') {
-    $sql = "SELECT * FROM account WHERE name = '" . $username . "'";
-    $result = $mysqli->query($sql);
+
+    $stmt = $mysqli->prepare("SELECT * FROM account WHERE name = ?");
+    $stmt->bind_param('s', htmlspecialchars($username));
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     $status = 'failed';
 
     //ユーザー名が一致するレコードが存在したら
-    if ($result) {
+    if ($result->num_rows > 0) {
       // 連想配列で回す
       while ($row = $result->fetch_assoc()) {
         //DBに保存してあるハッシュ済みパスワードを取り出す
@@ -69,11 +57,12 @@
 
     // 結果セットを閉じる
     $result->close();
+    $mysqli->close();
   }
 
   //ログインが成功していたらリダイレクト
   if ($status === 'logged_in' || $status === 'success') {
-	header('Location: ../datawrite.php');
+	header('Location: /datawrite.php');
     exit();
   }
 
@@ -93,18 +82,16 @@
   </head>
   <body>
     <div class="container">
-      <form class="form-signin" method="POST" action="login.php">
+      <form class="form-signin" method="POST" action="/login.php">
         <h2 class="form-signin-heading">ログイン</h2>
         <?= $status === 'failed' ? 'ログインできません' : '' ?>
 
-        <label for="inputEmail" class="sr-only">ユーザー名</label>
-        <input class="form-control" type="text" name="username" />
-              <label for="inputEmail" class="sr-only">パスワード</label>
-        <input class="form-control" type="password" name="password" />
+        <input class="form-control" type="text" name="username" placeholder="ユーザー名" />
+        <input class="form-control" type="password" name="password" placeholder="パスワード" />
           <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
       </form>
 
-        <a href="<?= $loginUrl ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>
+        <a href="<?= $fb_url ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>
         <a href="<?= $tw_url ?>"><button class="btn btn-info btn-block">twitterでログイン</button></a>
         <a href="/newAccount.php"><button class="btn btn-danger btn-block">新規登録</button></a>
 
