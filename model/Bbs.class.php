@@ -4,7 +4,7 @@ namespace model;
 
 class Bbs {
 
-  public static function getPage($page, $order, $mysqli)
+  public static function getPageByLimit($page, $order, $mysqli)
   {
     $limit = 10;
     $offset = ($page - 1) * $limit;
@@ -20,6 +20,39 @@ class Bbs {
     $result->close();
 
     return $limited_array;
+  }
+
+  public static function getPostById($post_id, $mysqli)
+  {
+    $delete_flag = false;
+    $stmt = $mysqli->prepare("SELECT * FROM post WHERE  delete_flag = ? AND id = ?");
+    $stmt->bind_param('ii',  $delete_flag, $post_id);
+    $records = [];
+
+    if ($stmt->execute()) { 
+      $result = $stmt->get_result();;
+      while ($row = $result->fetch_assoc()) {
+        $records[] = $row;
+      }
+      $result->close();
+    }
+    return $records;
+  }
+
+  public static function getRepliesByPostId($post_id, $mysqli)
+  {
+    $stmt = $mysqli->prepare("SELECT * FROM reply WHERE post_id = ?");
+    $stmt->bind_param('i', $post_id);
+    $records = [];
+
+    if ($stmt->execute()) { 
+      $result = $stmt->get_result();;
+      while ($row = $result->fetch_assoc()) {
+        $records[] = $row;
+      }
+      $result->close();
+    }
+    return $records;
   }
 
   public static function getMaxPage($mysqli)

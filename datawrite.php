@@ -25,7 +25,7 @@
   $order = in_array(filter_input(INPUT_GET, 'order'), array('ASC', 'DESC')) ? (string) filter_input(INPUT_GET, 'order') : 'DESC';
 
   //表示するレコードを取得
-  $records = model\Bbs::getPage((int) $page, $order, $mysqli);
+  $records = model\Bbs::getPageByLimit((int) $page, $order, $mysqli);
   //最大ページ数計算
   $max_page = model\Bbs::getMaxPage($mysqli);
   //フォームでpostされた情報
@@ -133,9 +133,6 @@
               var len = escape(value.charAt(i)).length;
               //半角ならfalse(改行は除外)
               if (len < 4 && (escape(value.charAt(i)) !== '%0A' && escape(value.charAt(i)) !== '%0D')) {
-                          console.log('ダメ');
-                          console.log(value.charAt(i));
-
                 return this.optional(element) || false;
               }
           }
