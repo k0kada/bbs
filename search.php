@@ -20,8 +20,18 @@
   {
     $records = array();
 
+    //ワイルドカードエスケープ
+    $str = mysql_real_escape_string($search_word);
+    //%を置き換え
+    $str = mb_ereg_replace('%','\%',$str);
+    //_を置き換え
+    $str = mb_ereg_replace('_','\_',$str);
+    //バックスラッシュを２重化
+    $str = mb_ereg_replace('\\\\','\\\\',$str);
+
     if ($search_word !== '') {
-      $sql = "SELECT * FROM post WHERE delete_flag = false AND body LIKE ". "'%". htmlspecialchars($search_word). "%'";
+      $sql = "SELECT * FROM post WHERE delete_flag = false AND body LIKE ". "'%". $str. "%'";
+
       $result = $mysqli->query($sql);
   
       while ($row = $result->fetch_assoc()) {
@@ -37,8 +47,14 @@
   {
     $records = array();
 
+    //ワイルドカードエスケープ
+    $str = mysql_real_escape_string($search_word);
+    $str = mb_ereg_replace('%','\%',$str);
+    $str = mb_ereg_replace('_','\_',$str);
+    $str = mb_ereg_replace('\\\\','\\\\',$str);
+
     if ($search_word !== '') {
-      $sql = "SELECT * FROM reply WHERE body LIKE ". "'%". htmlspecialchars($search_word). "%'";
+      $sql = "SELECT * FROM reply WHERE body LIKE ". "'%". $str. "%'";
       $result = $mysqli->query($sql);
   
       while ($row = $result->fetch_assoc()) {
