@@ -1,6 +1,7 @@
 <?php
 
   require_once 'model/Account.class.php';
+  require_once 'model/Bbs.class.php';
 
   session_start();
 
@@ -18,65 +19,17 @@
 
   //ユーザーidからアカウント名を取得(DBのユーザー名前)
   $accout_name = model\Account::getNameById((int) $user_id, $mysqli);
-  
   //ページャー処理
   $page = filter_input(INPUT_GET, 'page') ? (string) filter_input(INPUT_GET, 'page') : 1;
-
   //昇順、降順判定
   $order = in_array(filter_input(INPUT_GET, 'order'), array('ASC', 'DESC')) ? (string) filter_input(INPUT_GET, 'order') : 'DESC';
 
-  $pager_array = getPage((int) $page, $order, $mysqli);
-  $max_page = getMaxPage($mysqli);
-
-  $name = (string) filter_input(INPUT_POST, 'name');  
-  $msg = (string) filter_input(INPUT_POST, 'body');
-  $status = (string) filter_input(INPUT_POST, 'status');
-
-  $checked_name = htmlspecialchars($name);
-  $checked_msg = htmlspecialchars($msg);
-
-  /**
-   * 該当するページの投稿を最大10個取ってくる
-   * @param type $page
-   * @param type $mysqli
-   * @return type
-   */
-  function getPage($page, $order, $mysqli)
-  {
-    $limit = 10;
-    $offset = ($page - 1) * $limit;
-
-    $sql = "SELECT * FROM post ORDER BY id ". $order. " LIMIT " . $offset. ", ". $limit;
-    $result = $mysqli->query($sql);
-
-    $limited_array = array();
-    while ($row = $result->fetch_assoc()) {
-      //セッションにユーザ名を保存(ログイン済みかのフラグ)
-      $limited_array[] = $row;
-    }
-    $result->close();
-
-    return $limited_array;
-  }
-
-  /**
-   * 投稿されている最大ページ数を取ってくる
-   * @param type $mysqli
-   * @return type
-   */
-  function getMaxPage($mysqli)
-  {
-    $limit = 10;
-
-    $sql = "SELECT id FROM post";
-    $result = $mysqli->query($sql);
-    $num_rows = $result->num_rows;
-    //小数点切り上げ
-    $max_page = ceil($num_rows / $limit);
-    $result->close();
-
-    return (int) $max_page;
-  }
+  //表示するレコードを取得
+  $records = model\Bbs::getPage((int) $page, $order, $mysqli);
+  //最大ページ数計算
+  $max_page = model\Bbs::getMaxPage($mysqli);
+  //フォームでpostされた情報
+  $form_output_array = model\Bbs::getFormOutput();
 
   /**
    * Step1::ファイルほぞん
@@ -134,31 +87,74 @@
         rules : {
           name: {
             required: true,
-            maxByte: 30
+            uniformity: true,
+            length: [15, 30]
           },
           body: {
             required: true,
-            maxByte: 600
+            uniformity: true,
+            length: [300, 600]
           }
         },
         messages: {
           name: {
             required: "何か入力してください",
-            maxByte: "30byte以下で入力してください"
+            uniformity: "半角または全角に統一してください",
+            length: "全角15文字以内または半角30文字以内にしてください"
           },
           body: {
             required: "何か入力してください",
-            maxByte: "600byte以下で入力してください"
+            uniformity: "半角または全角に統一してください",
+            length: "全角300文字以内または半角600文字以内にしてください"
           }
         },
         errorClass: "msgError",
         errorElement: "div"
       });
 
-      //バイト数判定
-      jQuery.validator.addMethod("maxByte", function(value, element, param) {
-        var txt_byte = encodeURIComponent(value).replace(/%../g,"x").length;
-        return txt_byte <= param;
+      ////バイト数判定
+      //jQuery.validator.addMethod("maxByte", function(value, element, param) {
+      //  var txt_byte = encodeURIComponent(value).replace(/%../g,"x").length;
+      //  return txt_byte <= param;
+      //});
+
+      //全角半角が統一されているかチェック
+      jQuery.validator.addMethod("uniformity", function(value, element) {
+        console.log(escape(value));
+        //最初の文字が全角か半角かチェック
+        if (escape(value.charAt(1)).length >= 4) {
+          for (var i = 0; i < value.length; i++) {
+            //改行は除外
+            if (escape(value.charAt(1)) !== '%0A' || escape(value.charAt(1)) !== '%0D' || escape(value.charAt(1)) !== '%0D%0A') {
+              //1文字ずつ文字コードをエスケープし、その長さが4文字以上なら全角
+              var len = escape(value.charAt(i)).length;
+              if (len < 4) {
+                return false;
+              }
+            }
+          }
+          return true;
+        } else {
+          for (var i = 0; i < value.length; i++) {
+            if (escape(value.charAt(1)) !== '%0A' || escape(value.charAt(1)) !== '%0D' || escape(value.charAt(1)) !== '%0D%0A') {            //1文字ずつ文字コードをエスケープし、その長さが4文字以上なら全角
+              var len = escape(value.charAt(i)).length;
+              if (len >= 4) {
+                return false;
+              }
+            }
+          }
+          return true;
+        }
+      });
+
+      //文字数チェック
+      jQuery.validator.addMethod("length", function(value, element, param) {
+        //最初の文字が全角か半角かチェック
+        if (escape(value.charAt(1)).length >= 4) {
+          return value.length <= param[0];
+        } else {
+          return value.length <= param[1];
+        }
       });
 
     });
@@ -190,11 +186,15 @@
         <button class="btn btn-success" type="submit">投稿</button>
       </form>
       <div id="error_msg">
-        <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg). '<br>' : '' ?>
-        <?= $status === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
-        <?= $status === 'duplicate' ? '<h2 style="color:red">2重投稿です</h2>' : '' ?>
+        <?= $form_output_array['status'] === 'success' ? '<h3>--form出力--<br>'. $form_output_array['name']. '<br>'. nl2br($form_output_array['msg']). '</h3>' : '' ?>
+        <?= $form_output_array['status'] === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
+        <?= $form_output_array['status'] === 'duplicate' ? '<h2 style="color:red">2重投稿です</h2>' : '' ?>
       </div>
 
+    </div>
+
+
+    <div class="table-size">
       <div class="page-header">
         <h2>投稿済み一覧</h2>
       </div>
@@ -208,24 +208,25 @@
         <li>降順</li>
       <? } ?>
       </ul>
+      <div class="table-responsive">
 
-
-        <table class="table-striped"  width="100%">
-          <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
-        <? foreach ($pager_array as $post) { ?>
-        <?// var_dump($post['image']) ?>
-          <tr>
-              <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-              <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
-              <td>
-                  <? if (isset($post['image']) && $post['image'] !== '') {?>
-                    <img  width="50" height="50" src="http://ko-okada.net/drawImage.php?post_id=<?= $post['id'] ?>">
-                  <? } ?>
-              </td>
-              <td><button><a href="postDelete.php?id=<?= $post['id'] ?>">削除</button></td>
-          </tr>
-        <? } ?>
-      </table>
+        <table class="table table-striped">
+          <tr><th>投稿id</th><th>ハンドルネーム</th><th >テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
+          <? foreach ($records as $post) { ?>
+            <tr>
+                <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
+                <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
+                <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
+                <td>
+                    <? if (isset($post['image']) && $post['image'] !== '') {?>
+                      <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
+                    <? } ?>
+                </td>
+                <td><button><a href="postDelete.php?id=<?= $post['id'] ?>">削除</button></td>
+            </tr>
+          <? } ?>
+        </table>
+      </div>
 
       <ul class="list-inline">
       <? if ($page > 1) { ?>
@@ -236,6 +237,7 @@
       <? } ?>
       </ul>
     </div>
+
   </body>
 
 </html>
