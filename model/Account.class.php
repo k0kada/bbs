@@ -44,7 +44,7 @@ class Account {
     //callbackで使うのでセッションに入れる
     $_SESSION['oauth_token'] = $request_token['oauth_token'];
     $_SESSION['oauth_token_secret'] = $request_token['oauth_token_secret'];
-    //Twitter.com 上の認証画面のURLを取得( この行についてはコメント欄も参照 )
+    //認証画面のURLを取得
     $loginUrl = $tw->url('oauth/authenticate', array('oauth_token' => $request_token['oauth_token']));
     return $loginUrl;
   }
