@@ -126,30 +126,29 @@
 
       //全角半角が統一されているかチェック
       jQuery.validator.addMethod("uniformity", function(value, element) {
-        console.log(escape(value));
         //最初の文字が全角か半角かチェック
-        if (escape(value.charAt(1)).length >= 4) {
+        if (escape(value.charAt(0)).length >= 4) {
           for (var i = 0; i < value.length; i++) {
-            //改行は除外
-            if (escape(value.charAt(1)) !== '%0A' || escape(value.charAt(1)) !== '%0D' || escape(value.charAt(1)) !== '%0D%0A') {
               //1文字ずつ文字コードをエスケープし、その長さが4文字以上なら全角
               var len = escape(value.charAt(i)).length;
-              if (len < 4) {
-                return false;
+              //半角ならfalse(改行は除外)
+              if (len < 4 && (escape(value.charAt(i)) !== '%0A' && escape(value.charAt(i)) !== '%0D')) {
+                          console.log('ダメ');
+                          console.log(value.charAt(i));
+
+                return this.optional(element) || false;
               }
-            }
           }
-          return true;
+          return this.optional(element) || true;
         } else {
           for (var i = 0; i < value.length; i++) {
-            if (escape(value.charAt(1)) !== '%0A' || escape(value.charAt(1)) !== '%0D' || escape(value.charAt(1)) !== '%0D%0A') {            //1文字ずつ文字コードをエスケープし、その長さが4文字以上なら全角
               var len = escape(value.charAt(i)).length;
-              if (len >= 4) {
-                return false;
+              //全角ならfalse(改行は除外)
+              if (len >= 4 && (escape(value.charAt(i)) !== '%0D%0A')) {
+                return this.optional(element) || false;
               }
-            }
           }
-          return true;
+          return this.optional(element) || true;
         }
       });
 
@@ -157,15 +156,16 @@
       jQuery.validator.addMethod("length", function(value, element, param) {
         //最初の文字が全角か半角かチェック
         if (escape(value.charAt(1)).length >= 4) {
-          return value.length <= param[0];
+          return this.optional(element) || value.length <= param[0];
         } else {
-          return value.length <= param[1];
+          return this.optional(element) || value.length <= param[1];
         }
       });
 
+      //画像サイズチェック
       jQuery.validator.addMethod("size", function(value, element, param) {
       var fileList = document.getElementById("image").files;
-      return fileList[0]['size'] <= param;
+      return this.optional(element) || fileList[0]['size'] <= param;
       });
 
     });
@@ -227,13 +227,17 @@
             <tr>
                 <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
                 <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-                <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
+                <td><a class="btn btn-primary" href="reply.php?id=<?= $post['id'] ?>">コメント</a></td>
                 <td>
-                    <? if (isset($post['image']) && $post['image'] !== '') {?>
-                      <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
-                    <? } ?>
+                  <? if (isset($post['image']) && $post['image'] !== '') {?>
+                    <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
+                  <? } ?>
                 </td>
-                <td><button><a href="postDelete.php?id=<?= $post['id'] ?>">削除</button></td>
+                <td>
+                  <? if ($user_id == $post['user_id']) { ?>
+                    <a class="btn btn-danger" href="postDelete.php?id=<?= $post['id'] ?>">削除</a>
+                  <? } ?>
+                </td>
             </tr>
           <? } ?>
         </table>
