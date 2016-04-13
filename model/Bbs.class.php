@@ -93,20 +93,19 @@ class Bbs {
   private static function checkInputFlag($name, $msg)
   {
     $status = 0;
-
     //名前チェック
     $name_width =  self::checkWordWidth($name);
-    if ($name_width === 'zenkaku' && strlen($name) <= 15) {
+    if ($name_width === 'zenkaku' && mb_strlen($name) <= 15) {
       $status += 1;
-    } elseif ($name_width === 'hankaku' && strlen($name) <= 30) {
+    } elseif ($name_width === 'hankaku' && mb_strlen($name) <= 30) {
       $status += 1;
     }
 
     //msgチェック
     $msg_width =  self::checkWordWidth($msg);
-    if ($msg_width === 'zenkaku' && strlen($msg) <= 300) {
+    if ($msg_width === 'zenkaku' && mb_strlen($msg) <= 300) {
       $status += 1;
-    } elseif ($msg_width === 'hankaku' && strlen($msg) <= 600) {
+    } elseif ($msg_width === 'hankaku' && mb_strlen($msg) <= 600) {
       $status += 1;
     }
 
