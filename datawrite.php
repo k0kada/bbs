@@ -6,7 +6,7 @@
   session_start();
 
   if (is_null($_SESSION["user_id"])) {
-    header('Location: ./login.php/');
+    header('Location: /login.php/');
     exit();
   }
   $user_id = (int) $_SESSION["user_id"];
@@ -232,7 +232,7 @@
               </td>
               <td>
                 <? if ($user_id == $post['user_id']) { ?>
-                  <a class="btn btn-danger" href="postDelete.php?id=<?= $post['id'] ?>">削除</a>
+                  <a class="btn btn-danger" href="/postDelete.php?id=<?= $post['id'] ?>">削除</a>
                 <? } ?>
               </td>
             </tr>

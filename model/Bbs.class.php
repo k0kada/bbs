@@ -168,4 +168,18 @@ class Bbs {
     }
     return $status;
   }
+
+  public static function deletePost($post_id, $mysqli)
+  {
+    $now = date("Y-m-d H:i:s");
+
+    $delete_flag = true;
+    $stmt = $mysqli->prepare("UPDATE post SET delete_flag = ?, updated_at = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param('isii', $delete_flag, $now, $post_id, $_SESSION["user_id"]);
+
+    if ($stmt->execute()) {
+      return 'success';
+    }
+    return 'failed';
+  }
 }

@@ -126,7 +126,7 @@ class Account {
       //セッションにAccountIdをセット
       $_SESSION["user_id"] = $insert_id;
       $mysqli->close();
-	  header('Location: ../login.php');
+	  header('Location: /login.php');
       exit();
     } else {
       $status = "failed";
