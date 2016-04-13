@@ -222,22 +222,22 @@
       <div class="table-responsive">
 
         <table class="table table-striped">
-          <tr><th>投稿id</th><th>ハンドルネーム</th><th >テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
+          <tr><th>投稿スレッドid</th><th>ハンドルネーム</th><th >テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
           <? foreach ($records as $post) { ?>
             <tr>
-                <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
-                <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-                <td><a class="btn btn-primary" href="reply.php?id=<?= $post['id'] ?>">コメント</a></td>
-                <td>
-                  <? if (isset($post['image']) && $post['image'] !== '') {?>
-                    <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
-                  <? } ?>
-                </td>
-                <td>
-                  <? if ($user_id == $post['user_id']) { ?>
-                    <a class="btn btn-danger" href="postDelete.php?id=<?= $post['id'] ?>">削除</a>
-                  <? } ?>
-                </td>
+              <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
+              <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
+              <td><a class="btn btn-primary" href="reply.php?id=<?= $post['id'] ?>">コメント</a></td>
+              <td>
+                <? if (isset($post['image']) && $post['image'] !== '') {?>
+                  <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
+                <? } ?>
+              </td>
+              <td>
+                <? if ($user_id == $post['user_id']) { ?>
+                  <a class="btn btn-danger" href="postDelete.php?id=<?= $post['id'] ?>">削除</a>
+                <? } ?>
+              </td>
             </tr>
           <? } ?>
         </table>

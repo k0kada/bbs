@@ -18,38 +18,36 @@
 
   function getPostsByBody($search_word, $mysqli)
   {
-    $array = array();
+    $records = array();
 
     if ($search_word !== '') {
       $sql = "SELECT * FROM post WHERE body LIKE ". "'%". htmlspecialchars($search_word). "%'";
       $result = $mysqli->query($sql);
   
       while ($row = $result->fetch_assoc()) {
-        //セッションにユーザ名を保存(ログイン済みかのフラグ)
-        $array[] = $row;
+        $records[] = $row;
       }
       $result->close();
     }
 
-    return $array;
+    return $records;
   }
 
   function getRepliesByBody($search_word, $mysqli)
   {
-    $array = array();
+    $records = array();
 
     if ($search_word !== '') {
       $sql = "SELECT * FROM reply WHERE body LIKE ". "'%". htmlspecialchars($search_word). "%'";
       $result = $mysqli->query($sql);
   
       while ($row = $result->fetch_assoc()) {
-        //セッションにユーザ名を保存(ログイン済みかのフラグ)
-        $array[] = $row;
+        $records[] = $row;
       }
       $result->close();
     }
 
-    return $array;
+    return $records;
   }
 
   function countHitSeach($post_array, $reply_array)
@@ -103,7 +101,7 @@
 
       <div class="table-responsive">
         <table class="table table-striped">
-          <tr><th>投稿id</th><th>ハンドルネーム</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
+          <tr><th>投稿スレッドid</th><th>ハンドルネーム</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
           <? foreach ($post_array as $post) { ?>
             <tr>
                 <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
