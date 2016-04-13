@@ -21,7 +21,7 @@
     $records = array();
 
     if ($search_word !== '') {
-      $sql = "SELECT * FROM post WHERE body LIKE ". "'%". htmlspecialchars($search_word). "%'";
+      $sql = "SELECT * FROM post WHERE delete_flag = false AND body LIKE ". "'%". htmlspecialchars($search_word). "%'";
       $result = $mysqli->query($sql);
   
       while ($row = $result->fetch_assoc()) {
