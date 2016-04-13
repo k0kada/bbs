@@ -117,6 +117,11 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/css/non-responsive.css" rel="stylesheet">
+
     <title>メッセージ投稿</title>
     <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
     <script type="text/javascript" src="js/jquery.validate.min.js"></script>
@@ -161,54 +166,76 @@
 
   </head>
   <body>
-    <a href="../logout.php">ログアウト</a>
-    <h3><a href="../search.php" >検索</a></h3>
-    <h1>メッセージ投稿</h1>
-    <form id="msgForm" method="POST" enctype="multipart/form-data" action="postRegister.php">
-      名前：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
-      <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea><br>
-      <input type="hidden" name="ticket" value="<?=$ticket?>">
-      <input type="file" name="image" accept="image/jpeg, image/gif, image/png">
-      <input  type="submit" value="投稿" />
-    </form>
-    <div id="error_msg">
-      <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg). '<br>' : '' ?>
-      <?= $status === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
-      <?= $status === 'duplicate' ? '<h2 style="color:red">2重投稿です</h2>' : '' ?>
-    </div>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div id="navbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/logout.php">ログアウト</a></li>
+            <li><a href="/search.php" >検索</a></li>
+          </ul>
+       </div>
+      </div>
+    </nav>
 
-    <h1>投稿済み一覧</h1>
-    <ul>
-    <? if ($order === 'ASC') { ?>
-      <li>昇順</li>
-      <li><a href="datawrite.php?order=DESC">降順</a></li>
-    <? } ?>
-    <? if ($order === 'DESC') { ?>
-      <li><a href="datawrite.php?order=ASC">昇順</a></li>
-      <li>降順</li>
-    <? } ?>
-    </ul>
-    <table border=1>
-        <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th>></tr>
-      <? foreach ($pager_array as $post) { ?>
-        <tr>
-            <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-            <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
-            <td style="background-image:url('drawImage.php?post_id=<?= $post['id'] ?>'); background-size:cover;"></td>
-            <td><button><a href="postDelete.php?id=<?= $post['id'] ?>">削除</button></td>
-        </tr>
+    <div class="container">
+
+      <div class="page-header">
+        <h1>メッセージ投稿</h1>
+      </div>
+      <form id="msgForm" method="POST" enctype="multipart/form-data" action="postRegister.php">
+        ハンドルネーム：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
+        <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea><br>
+        <input type="hidden" name="ticket" value="<?=$ticket?>">
+        <input type="file" name="image" accept="image/jpeg, image/gif, image/png">
+        <button class="btn btn-success" type="submit">投稿</button>
+      </form>
+      <div id="error_msg">
+        <?= $status === 'success' ? $checked_name. '<br>'. nl2br($checked_msg). '<br>' : '' ?>
+        <?= $status === 'failed' ? 'メッセージの保存が失敗しました。<br>' : '' ?>
+        <?= $status === 'duplicate' ? '<h2 style="color:red">2重投稿です</h2>' : '' ?>
+      </div>
+
+      <div class="page-header">
+        <h2>投稿済み一覧</h2>
+      </div>
+      <ul class="list-inline">
+      <? if ($order === 'ASC') { ?>
+        <li>昇順</li>
+        <li><a href="datawrite.php?order=DESC">降順</a></li>
       <? } ?>
-    </table>
+      <? if ($order === 'DESC') { ?>
+        <li><a href="datawrite.php?order=ASC">昇順</a></li>
+        <li>降順</li>
+      <? } ?>
+      </ul>
 
-    <ul>
-    <? if ($page > 1) { ?>
-      <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
-    <? } ?>
-    <? if ($page < $max_page) { ?>
-      <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
-    <? } ?>
-    </ul>
 
+        <table class="table-striped"  width="100%">
+          <tr><th>投稿id</th><th>名前</th><th>テキスト</th><th>作成日時</th><th>返信を見る</th><th>画像</th><th>削除</th></tr>
+        <? foreach ($pager_array as $post) { ?>
+        <?// var_dump($post['image']) ?>
+          <tr>
+              <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td><td><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
+              <td><button><a href="reply.php?id=<?= $post['id'] ?>">コメント</button></td>
+              <td>
+                  <? if (isset($post['image']) && $post['image'] !== '') {?>
+                    <img  width="50" height="50" src="http://ko-okada.net/drawImage.php?post_id=<?= $post['id'] ?>">
+                  <? } ?>
+              </td>
+              <td><button><a href="postDelete.php?id=<?= $post['id'] ?>">削除</button></td>
+          </tr>
+        <? } ?>
+      </table>
+
+      <ul class="list-inline">
+      <? if ($page > 1) { ?>
+        <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
+      <? } ?>
+      <? if ($page < $max_page) { ?>
+        <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
+      <? } ?>
+      </ul>
+    </div>
   </body>
 
 </html>
