@@ -94,6 +94,9 @@
             required: true,
             uniformity: true,
             length: [300, 600]
+          },
+          image: {
+            size: 10240
           }
         },
         messages: {
@@ -106,6 +109,9 @@
             required: "何か入力してください",
             uniformity: "半角または全角に統一してください",
             length: "全角300文字以内または半角600文字以内にしてください"
+          },
+          image: {
+            size: "10KB以内にしてください"
           }
         },
         errorClass: "msgError",
@@ -157,6 +163,11 @@
         }
       });
 
+      jQuery.validator.addMethod("size", function(value, element, param) {
+      var fileList = document.getElementById("image").files;
+      return fileList[0]['size'] <= param;
+      });
+
     });
     </script>
 
@@ -182,7 +193,7 @@
         ハンドルネーム：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
         <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea><br>
         <input type="hidden" name="ticket" value="<?=$ticket?>">
-        <input type="file" name="image" accept="image/jpeg, image/gif, image/png">
+        <input type="file" name="image" id="image" accept="image/jpeg, image/gif, image/png">
         <button class="btn btn-success" type="submit">投稿</button>
       </form>
       <div id="error_msg">
