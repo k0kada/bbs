@@ -75,8 +75,17 @@
     <link href="/css/signin.css" rel="stylesheet">
   </head>
   <body>
+     <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div id="navbar">
+          <ul class="nav navbar-nav">
+            <li><a href="/login.php">ログイン</a></li>
+          </ul>
+       </div>
+      </div>
+    </nav>
+ 
     <div class="container">
-      <a href="/login.php">ログイン</a>
 
       <form class="form-signin" method="POST" action="newAccount.php">
         <h2 class="form-signin-heading">新規登録</h2>

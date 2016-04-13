@@ -92,7 +92,7 @@
       </form>
 
         <a href="<?= $fb_url ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>
-        <a href="<?= $tw_url ?>"><button class="btn btn-info btn-block">twitterでログイン</button></a>
+        <a href="<?= $tw_url ?>"><button class="btn btn-info btn-block">twitterでログイン</button></a><br>
         <a href="/newAccount.php"><button class="btn btn-danger btn-block">新規登録</button></a>
 
     </div>
