@@ -1,5 +1,12 @@
 <?php
 
+  session_start();
+
+  if (is_null($_SESSION["user_id"])) {
+    header('Location: /login.php/');
+    exit();
+  }
+
   require_once 'model/Bbs.class.php';
 
   $post_id = (string) filter_input(INPUT_GET, 'post_id');

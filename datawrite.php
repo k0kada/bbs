@@ -21,13 +21,21 @@
   $accout_name = model\Account::getNameById((int) $user_id, $mysqli);
   //ページャー処理
   $page = filter_input(INPUT_GET, 'page') ? (string) filter_input(INPUT_GET, 'page') : 1;
+  //最大ページ数計算
+  $max_page = model\Bbs::getMaxPage($mysqli);
+
+  if ($page < 1) {
+    $page  = 1;
+  } elseif ($max_page < $page) {
+    $page = $max_page;
+  }
+
   //昇順、降順判定
   $order = in_array(filter_input(INPUT_GET, 'order'), array('ASC', 'DESC')) ? (string) filter_input(INPUT_GET, 'order') : 'DESC';
 
   //表示するレコードを取得
   $records = model\Bbs::getPageByLimit((int) $page, $order, $mysqli);
-  //最大ページ数計算
-  $max_page = model\Bbs::getMaxPage($mysqli);
+
   //フォームでpostされた情報
   $form_output_array = model\Bbs::getFormOutput();
 
