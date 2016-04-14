@@ -209,10 +209,10 @@
       <ul class="list-inline">
       <? if ($order === 'ASC') { ?>
         <li>昇順</li>
-        <li><a href="datawrite.php?order=DESC">降順</a></li>
+        <li><a href="/datawrite.php?order=DESC">降順</a></li>
       <? } ?>
       <? if ($order === 'DESC') { ?>
-        <li><a href="datawrite.php?order=ASC">昇順</a></li>
+        <li><a href="/datawrite.php?order=ASC">昇順</a></li>
         <li>降順</li>
       <? } ?>
       </ul>
@@ -224,7 +224,7 @@
             <tr>
               <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
               <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-              <td><a class="btn btn-primary" href="reply.php?id=<?= $post['id'] ?>">コメント</a></td>
+              <td><a class="btn btn-primary" href="/reply.php?id=<?= $post['id'] ?>">コメント</a></td>
               <td>
                 <? if (isset($post['image']) && $post['image'] !== '') {?>
                   <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
@@ -242,10 +242,10 @@
 
       <ul class="list-inline">
       <? if ($page > 1) { ?>
-        <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
+        <li><a href="/datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
       <? } ?>
       <? if ($page < $max_page) { ?>
-        <li><a href="datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
+        <li><a href="/datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
       <? } ?>
       </ul>
     </div>

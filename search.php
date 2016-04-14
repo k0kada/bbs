@@ -122,7 +122,7 @@
             <tr>
                 <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
                 <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-                <td><a class="btn btn-primary" href="reply.php?id=<?= $post['id'] ?>">コメント</a></td>
+                <td><a class="btn btn-primary" href="/reply.php?id=<?= $post['id'] ?>">コメント</a></td>
                 <td>
                   <? if (isset($post['image']) && $post['image'] !== '') {?>
                     <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
