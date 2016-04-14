@@ -26,6 +26,11 @@ class Account {
     return isset($row) ? $row['name'] : null;
   }
 
+  /**
+   * facebookのログイン用URLを作成
+   * @param type $fb
+   * @return type
+   */
   public static function getFacebookUrl($fb)
   {
     $helper = $fb->getRedirectLoginHelper();
@@ -37,6 +42,12 @@ class Account {
     return $loginUrl;
   }
 
+  /**
+   * twitterのログイン用URLを作成
+   * @param type $tw
+   * @param type $tw_api_key
+   * @return type
+   */
   public static function getTwitterUrl($tw, $tw_api_key)
   {
     //コールバックURLをここでセット
@@ -49,6 +60,12 @@ class Account {
     return $loginUrl;
   }
 
+  /**
+   * api_keyカラムから重複アカウントがあるか確認
+   * @param type $api_key
+   * @param type $mysqli
+   * @return string
+   */
   public static function checkOverlapByApiKey($api_key, $mysqli)
   {
     $stmt_sel = $mysqli->prepare("SELECT * FROM account WHERE api_key = ?");
@@ -72,6 +89,12 @@ class Account {
     }
   }
 
+  /**
+   * 名前から重複ユーザーが存在するか確認
+   * @param type $name
+   * @param type $mysqli
+   * @return string
+   */
   public static function checkOverlapByName($name, $mysqli)
   {
     $stmt_sel = $mysqli->prepare("SELECT * FROM account WHERE name = ?");
@@ -86,6 +109,13 @@ class Account {
     }
   }
 
+  /**
+   * Apiからアカウントを作成する
+   * @param type $name
+   * @param type $api_key
+   * @param type $mysqli
+   * @return string
+   */
   public static function createAccountbyNameApiKey($name, $api_key, $mysqli)
   {
     //現時刻
@@ -111,6 +141,13 @@ class Account {
     return $status;
   }
 
+  /**
+   * 名前とパスワードから新規登録
+   * @param type $name
+   * @param type $pass
+   * @param type $mysqli
+   * @return string
+   */
   public static function createAccountByNamePass($name, $pass, $mysqli)
   {  
     //現時刻
