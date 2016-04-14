@@ -1,22 +1,29 @@
 <?php
 
+  //セッション開始
+  session_start();
+
   require_once 'model/Api.class.php';
   require_once 'model/Account.class.php';
   require_once 'vendor/autoload.php';
   use Abraham\TwitterOAuth\TwitterOAuth;
 
-    //セッション開始
-  session_start();
-
   //facebook
   $fb_api_key = model\Api::getFacebookKey();
   $fb = new Facebook\Facebook($fb_api_key);
-  $fb_url = model\Account::getFacebookUrl($fb);
-
+  try {
+    $fb_url = model\Account::getFacebookUrl($fb);
+  } catch (Exception $ex) {
+    echo 'facebookは使えません';
+  }
   //twitter
   $tw_api_key = model\Api::getTwitterKey();
   $tw = new TwitterOAuth($tw_api_key['CONSUMER_KEY'], $tw_api_key['CONSUMER_SECRET']);
-  $tw_url = model\Account::getTwitterUrl($tw, $tw_api_key);
+  try {
+    $tw_url = model\Account::getTwitterUrl($tw, $tw_api_key);
+  } catch (Exception $ex) {
+    echo 'twitterは使えません';
+  }
 
   //DBのオブジェクト作成
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
