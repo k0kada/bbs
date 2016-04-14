@@ -6,7 +6,7 @@
   session_start();
 
   if (is_null($_SESSION["user_id"])) {
-    header('Location: /login.php/');
+    header('Location: /login.php');
     exit();
   }
   $user_id = (int) $_SESSION["user_id"];
@@ -15,6 +15,10 @@
   $mysqli = new mysqli("localhost", "okada", "kokada", "datawrite");
   
   $post_record = model\Bbs::getPostById($post_id, $mysqli);
+  if ($post_record === array()) {
+    header('Location: /datawrite.php');
+    exit();
+  }
   $replay_records = model\Bbs::getRepliesByPostId($post_id, $mysqli);
   
   //ワンタイムチケットを生成する。
