@@ -4,6 +4,13 @@ namespace model;
 
 class Bbs {
 
+  /**
+   * postテーブルのセレクト(limit, order)
+   * @param type $page
+   * @param type $order
+   * @param type $mysqli
+   * @return type
+   */
   public static function getPageByLimit($page, $order, $mysqli)
   {
     $limit = 10;
@@ -22,6 +29,12 @@ class Bbs {
     return $limited_array;
   }
 
+  /**
+   * idを使ったpostテーブルのセレクト
+   * @param type $post_id
+   * @param type $mysqli
+   * @return type
+   */
   public static function getPostById($post_id, $mysqli)
   {
     $delete_flag = false;
@@ -39,6 +52,12 @@ class Bbs {
     return $records;
   }
 
+  /**
+   * idを使ったreplyテーブルのセレクト
+   * @param type $post_id
+   * @param type $mysqli
+   * @return type
+   */
   public static function getRepliesByPostId($post_id, $mysqli)
   {
     $stmt = $mysqli->prepare("SELECT * FROM reply WHERE post_id = ?");
@@ -55,6 +74,11 @@ class Bbs {
     return $records;
   }
 
+  /**
+   * 表示できる最大ページを取得
+   * @param type $mysqli
+   * @return type
+   */
   public static function getMaxPage($mysqli)
   {
     $limit = 10;
@@ -69,6 +93,10 @@ class Bbs {
     return (int) $max_page;
   }
 
+  /**
+   * フォームから入力されたものを取得
+   * @return type
+   */
   public static function getFormOutput()
   {
     $result = [];
@@ -85,6 +113,16 @@ class Bbs {
     return $result;
   }
 
+  /**
+   * postテーブルにインサート
+   * @param type $checked_name
+   * @param type $checked_msg
+   * @param type $image
+   * @param type $post_ticket
+   * @param type $session_ticket
+   * @param type $mysqli
+   * @return string
+   */
   public static function insertFormValue($checked_name, $checked_msg, $image, $post_ticket, $session_ticket, $mysqli)
   {
     $ticket_flag = self::getTicketFlag($post_ticket, $session_ticket);
@@ -114,6 +152,12 @@ class Bbs {
     }
   }
 
+  /**
+   * ワンタイムトークンで判定
+   * @param type $post_ticket
+   * @param type $session_ticket
+   * @return boolean
+   */
   private static function getTicketFlag($post_ticket, $session_ticket)
   {
     $flag = true;
@@ -123,6 +167,12 @@ class Bbs {
     return $flag;
   }
 
+  /**
+   * インサート条件フラグ
+   * @param type $name
+   * @param type $msg
+   * @return type
+   */
   private static function checkInputFlag($name, $msg)
   {
     $status = 0;
@@ -145,7 +195,11 @@ class Bbs {
     return $status == 2 ? true : false;
   }
 
-
+  /**
+   * 文字の半角、全角判定
+   * @param type $text
+   * @return string
+   */
   private static function checkWordWidth($text)
   {
     $status = 'failed';
@@ -169,6 +223,12 @@ class Bbs {
     return $status;
   }
 
+  /**
+   * postテーブルのdelete_flagカラムをtrueにする
+   * @param type $post_id
+   * @param type $mysqli
+   * @return string
+   */
   public static function deletePost($post_id, $mysqli)
   {
     $now = date("Y-m-d H:i:s");
