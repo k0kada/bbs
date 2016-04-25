@@ -194,7 +194,7 @@
       <div class="page-header">
         <h1>メッセージ投稿</h1>
       </div>
-      <form id="msgForm" method="POST" enctype="multipart/form-data" action="postRegister.php">
+        <form id="msgForm" method="POST" enctype="multipart/form-data" action="/datawrite/postRegister.php">
         ハンドルネーム：<input name="name" value="<?= $accout_name ?>" type="text" /><br>
         <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea><br>
         <input type="hidden" name="ticket" value="<?=$ticket?>">
