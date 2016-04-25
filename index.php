@@ -1,6 +1,6 @@
 <?php
 
-  header('Location: /datawrite.php');
+  header('Location: /datawrite/datawrite.php');
   exit();
 
 

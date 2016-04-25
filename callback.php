@@ -20,7 +20,7 @@
 
     //Twitterから返されたOAuthトークンと、あらかじめlogin.phpで入れておいたセッション上のものと一致するかをチェック
     if ($get_oauth_token !== '' && $request_token['oauth_token'] !== $get_oauth_token) {
-       header('location: /login.php');
+       header('location: /datawrite/login.php');
        exit();
     }
     try {
@@ -31,11 +31,11 @@
       $_SESSION['access_token'] = $connection->oauth("oauth/access_token", array("oauth_verifier" => $get_oauth_verifier));
       $user = $connection->get("account/verify_credentials");
       //アカウント登録ページへ
-      header('location: /newAccount.php');
+      header('location: /datawrite/newAccount.php');
       exit();
     } catch (Exception $exc) {
       //ログインページへリダイレクト
-      header('location: /login.php');
+      header('location: /datawrite/login.php');
       exit();
     }
   }
@@ -51,11 +51,11 @@
       //セッションに保存
       $_SESSION['facebook_access_token'] = (string) $accessToken;
       //アカウント登録ページへ
-      header('location: /newAccount.php');
+      header('location: /datawrite/newAccount.php');
       exit();
     } catch(Exception $exc) {
       //エラーを返した場合
-      header('location: /login.php');
+      header('location: /datawrite/login.php');
       exit();
     }
   }
@@ -63,5 +63,5 @@
   $_SESSION = array();
   session_destroy();
 
-  header('location: /login.php');
+  header('location: /datawrite/login.php');
   exit();

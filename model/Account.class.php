@@ -37,7 +37,7 @@ class Account {
     //オプション
     $permissions = ['email'];
     //コールバック
-    $url = 'http://ko-okada.net/callback.php';
+    $url = 'http://ko-okada.net/datawrite/callback.php';
     $loginUrl = $helper->getLoginUrl($url, $permissions);
     return $loginUrl;
   }
@@ -133,7 +133,7 @@ class Account {
       $_SESSION["user_id"] = $insert_id;
       $mysqli->close();
 
-      header('Location: /datawrite.php');
+      header('Location: /datawrite/datawrite.php');
       exit();
     } else {
       $status = "failed";
@@ -163,7 +163,7 @@ class Account {
       //セッションにAccountIdをセット
       $_SESSION["user_id"] = $insert_id;
       $mysqli->close();
-	  header('Location: /login.php');
+	  header('Location: /datawrite/login.php');
       exit();
     } else {
       $status = "failed";

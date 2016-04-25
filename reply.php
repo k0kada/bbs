@@ -6,7 +6,7 @@
   session_start();
 
   if (is_null($_SESSION["user_id"])) {
-    header('Location: /login.php');
+    header('Location: /datawrite/login.php');
     exit();
   }
   $user_id = (int) $_SESSION["user_id"];
@@ -16,7 +16,7 @@
   
   $post_record = model\Bbs::getPostById($post_id, $mysqli);
   if ($post_record === array()) {
-    header('Location: /datawrite.php');
+    header('Location: /datawrite/datawrite.php');
     exit();
   }
   $replay_records = model\Bbs::getRepliesByPostId($post_id, $mysqli);
@@ -32,9 +32,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="/css/non-responsive.css" rel="stylesheet">
+    <link href="/datawrite/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/datawrite/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/datawrite/css/non-responsive.css" rel="stylesheet">
 
     <title>コメント一覧</title>
 
@@ -106,9 +106,9 @@
       <div class="container">
         <div id="navbar">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/logout.php">ログアウト</a></li>
-            <li><a href="/datawrite.php" >戻る</a></li>
-            <li><a href="/search.php" >検索</a></li>
+            <li class="active"><a href="/datawrite/logout.php">ログアウト</a></li>
+            <li><a href="/datawrite/datawrite.php" >戻る</a></li>
+            <li><a href="/datawrite/search.php" >検索</a></li>
           </ul>
        </div>
       </div>
@@ -120,7 +120,7 @@
         <h2>コメント投稿</h2>
       </div>
 
-      <form id="replyForm" method="POST" action="replyRegister.php">
+      <form id="replyForm" method="POST" action="/datawrite/replyRegister.php">
         <textarea name="body" rows="4" cols="40" placeholder="テキストを入力してください"></textarea>
         <input type="hidden" name="post_id" value="<?=$post_id?>">
         <input type="hidden" name="ticket" value="<?=$ticket?>"><br>
@@ -146,7 +146,7 @@
               </td>
               <td>
                 <? if ($user_id == $post['user_id']) { ?>
-                  <a class="btn btn-danger" href="/postDelete.php?id=<?= $post['id'] ?>">削除</a>
+                  <a class="btn btn-danger" href="/datawrite/postDelete.php?id=<?= $post['id'] ?>">削除</a>
                 <? } ?>
               </td>
             </tr>

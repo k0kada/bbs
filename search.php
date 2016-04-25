@@ -4,7 +4,7 @@
   session_start();
 
   if (is_null($_SESSION["user_id"])) {
-    header('Location: /login.php/');
+    header('Location: /datawrite/login.php/');
     exit();
   }
   $user_id = (int) $_SESSION["user_id"];
@@ -77,9 +77,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="/css/non-responsive.css" rel="stylesheet">
+    <link href="/datawrite/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/datawrite/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/datawrite/css/non-responsive.css" rel="stylesheet">
 
     <title>検索</title>
   </head>
@@ -88,8 +88,8 @@
       <div class="container">
         <div id="navbar">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/logout.php">ログアウト</a></li>
-            <li><a href="/datawrite.php" >戻る</a></li>
+            <li class="active"><a href="/datawrite/logout.php">ログアウト</a></li>
+            <li><a href="/datawrite/datawrite.php" >戻る</a></li>
           </ul>
        </div>
       </div>
@@ -100,7 +100,7 @@
         <h1>検索</h1>
       </div>
 
-      <form id="searchForm" method="POST" action="search.php">
+      <form id="searchForm" method="POST" action="/datawrite/search.php">
         <input type="text" name="search">
         <input  type="submit" value="検索" />
       </form>
@@ -122,15 +122,15 @@
             <tr>
                 <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
                 <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-                <td><a class="btn btn-primary" href="/reply.php?id=<?= $post['id'] ?>">コメント</a></td>
+                <td><a class="btn btn-primary" href="/datawrite/reply.php?id=<?= $post['id'] ?>">コメント</a></td>
                 <td>
                   <? if (isset($post['image']) && $post['image'] !== '') {?>
-                    <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
+                    <img  width="50" height="50" src="/datawrite/drawImage.php?post_id=<?= $post['id'] ?>">
                   <? } ?>
                 </td>
                 <td>
                   <? if ($user_id == $post['user_id']) { ?>
-                    <a class="btn btn-danger" href="/postDelete.php?id=<?= $post['id'] ?>">削除</a>
+                    <a class="btn btn-danger" href="/datawrite/postDelete.php?id=<?= $post['id'] ?>">削除</a>
                   <? } ?>
                 </td>
             </tr>

@@ -34,7 +34,7 @@
     </script>
   </head>
   <body>
-    <form id="msgForm" method="POST" action="datawrite.php">
+    <form id="msgForm" method="POST" action="/datawrite/datawrite.php">
       <input type="hidden" name="name" value="<?= $checked_name ?>"/>
       <input type="hidden"name="body" value="<?= $checked_msg ?>"/>
       <input type="hidden"name="status" value="<?= $status ?>"/>

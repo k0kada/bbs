@@ -6,7 +6,7 @@
   session_start();
 
   if (is_null($_SESSION["user_id"])) {
-    header('Location: /login.php/');
+    header('Location: /datawrite/login.php/');
     exit();
   }
   $user_id = (int) $_SESSION["user_id"];
@@ -79,9 +79,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="/css/non-responsive.css" rel="stylesheet">
+    <link href="/datawrite/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/datawrite/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/datawrite/css/non-responsive.css" rel="stylesheet">
 
     <title>メッセージ投稿</title>
     <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
@@ -182,8 +182,8 @@
       <div class="container">
         <div id="navbar">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/logout.php">ログアウト</a></li>
-            <li><a href="/search.php" >検索</a></li>
+            <li class="active"><a href="/datawrite/logout.php">ログアウト</a></li>
+            <li><a href="/datawrite/search.php" >検索</a></li>
           </ul>
        </div>
       </div>
@@ -217,10 +217,10 @@
       <ul class="list-inline">
       <? if ($order === 'ASC') { ?>
         <li>昇順</li>
-        <li><a href="/datawrite.php?order=DESC">降順</a></li>
+        <li><a href="/datawrite/datawrite.php?order=DESC">降順</a></li>
       <? } ?>
       <? if ($order === 'DESC') { ?>
-        <li><a href="/datawrite.php?order=ASC">昇順</a></li>
+        <li><a href="/datawrite/datawrite.php?order=ASC">昇順</a></li>
         <li>降順</li>
       <? } ?>
       </ul>
@@ -232,15 +232,15 @@
             <tr>
               <td><?= $post['id'] ?></td><td><?= $post['name'] ?></td>
               <td class="col-md-1"><?= nl2br($post['body']) ?></td><td><?= $post['created_at'] ?></td>
-              <td><a class="btn btn-primary" href="/reply.php?id=<?= $post['id'] ?>">コメント</a></td>
+              <td><a class="btn btn-primary" href="/datawrite/reply.php?id=<?= $post['id'] ?>">コメント</a></td>
               <td>
                 <? if (isset($post['image']) && $post['image'] !== '') {?>
-                  <img  width="50" height="50" src="/drawImage.php?post_id=<?= $post['id'] ?>">
+                  <img  width="50" height="50" src="/datawrite/drawImage.php?post_id=<?= $post['id'] ?>">
                 <? } ?>
               </td>
               <td>
                 <? if ($user_id == $post['user_id']) { ?>
-                  <a class="btn btn-danger" href="/postDelete.php?id=<?= $post['id'] ?>">削除</a>
+                  <a class="btn btn-danger" href="/datawrite/postDelete.php?id=<?= $post['id'] ?>">削除</a>
                 <? } ?>
               </td>
             </tr>
@@ -250,10 +250,10 @@
 
       <ul class="list-inline">
       <? if ($page > 1) { ?>
-        <li><a href="/datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
+        <li><a href="/datawrite/datawrite.php?order=<?= $order ?>&page=<?= $page - 1 ?>">前のページへ</a></li>
       <? } ?>
       <? if ($page < $max_page) { ?>
-        <li><a href="/datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
+        <li><a href="/datawrite/datawrite.php?order=<?= $order ?>&page=<?= $page + 1 ?>">次のページへ</a></li>
       <? } ?>
       </ul>
     </div>

@@ -25,7 +25,7 @@
       model\Account::createAccountbyNameApiKey($fb_user->getName(), $fb_user->getId(), $mysqli);
     } elseif ($fb_status === 'overlap') {
       $mysqli->close();
-      header('Location: /datawrite.php');
+      header('Location: /datawrite/datawrite.php');
       exit();
     }
   }
@@ -44,7 +44,7 @@
       model\Account::createAccountbyNameApiKey($tw_user->name, $access_token['oauth_token'], $mysqli);
     } elseif ($tw_status === 'overlap') {
       $mysqli->close();
-      header('Location: /datawrite.php');
+      header('Location: /datawrite/datawrite.php');
       exit();
     }
   }
@@ -70,16 +70,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>新規登録</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="/css/signin.css" rel="stylesheet">
+    <link href="/datawrite/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/datawrite/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/datawrite/css/signin.css" rel="stylesheet">
   </head>
   <body>
      <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div id="navbar">
           <ul class="nav navbar-nav">
-            <li><a href="/login.php">ログイン</a></li>
+            <li><a href="/datawrite/login.php">ログイン</a></li>
           </ul>
        </div>
       </div>
@@ -87,7 +87,7 @@
  
     <div class="container">
 
-      <form class="form-signin" method="POST" action="newAccount.php">
+      <form class="form-signin" method="POST" action="/datawrite/newAccount.php">
         <h2 class="form-signin-heading">新規登録</h2>
         <?= $status === 'overlap' ? 'ユーザー名が重複しています<br>' : '' ?>
         <?= $status === 'failed' ? '登録に失敗しました<br>' : '' ?>

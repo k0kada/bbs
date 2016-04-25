@@ -69,7 +69,7 @@
 
   //ログインが成功していたらリダイレクト
   if ($status === 'logged_in' || $status === 'success') {
-	header('Location: /datawrite.php');
+	header('Location: /datawrite/datawrite.php');
     exit();
   }
 
@@ -82,14 +82,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ログイン</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-    <link href="/css/signin.css" rel="stylesheet">
+    <link href="/datawrite/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/datawrite/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="/datawrite/css/signin.css" rel="stylesheet">
 
   </head>
   <body>
     <div class="container">
-      <form class="form-signin" method="POST" action="/login.php">
+      <form class="form-signin" method="POST" action="/datawrite/login.php">
         <h2 class="form-signin-heading">ログイン</h2>
         <?= $status === 'failed' ? 'ログインできません' : '' ?>
 
@@ -98,9 +98,9 @@
         <button class="btn btn-lg btn-success btn-block" type="submit">ログイン</button>
       </form>
 
-        <a href="<?= $fb_url ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>
+        <a href="<?= urldecode($fb_url) ?>"><button class="btn btn-primary btn-block">Facebookでログイン</button></a>
         <a href="<?= $tw_url ?>"><button class="btn btn-info btn-block">twitterでログイン</button></a><br>
-        <a href="/newAccount.php"><button class="btn btn-danger btn-block">新規登録</button></a>
+        <a href="/datawrite/newAccount.php"><button class="btn btn-danger btn-block">新規登録</button></a>
 
     </div>
   </body>

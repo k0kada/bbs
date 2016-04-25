@@ -65,7 +65,7 @@
     </script>
   </head>
   <body>
-    <form id="msgForm" method="POST" action="reply.php?id=<?= $post_id ?>">
+    <form id="msgForm" method="POST" action="/datawrite/reply.php?id=<?= $post_id ?>">
       <input type="hidden"name="body" value="<?= $checked_msg ?>"/>
       <input type="hidden"name="status" value="<?= $status ?>"/>
     </form>
